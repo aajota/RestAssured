@@ -1,6 +1,7 @@
 package rest.test;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.is;
 
 import java.util.HashMap;
@@ -79,5 +80,71 @@ public class ApiTest extends BaseTest{
 		   .body("error", is("Já existe uma conta com esse nome!"))
 		   ;
 	}
-	
+	@Test
+	public void deveInserirMovimentacaoComSucesso() {
+		Movimentacao mov = new Movimentacao();
+		mov.setConta_id(1442012);
+	//	mov.setUsuario_id(usuario_id);
+		mov.setDescricao("Descricao da movimentacao");
+		mov.setEnvolvido("Envolvido na mov");
+		mov.setTipo("REC");
+		mov.setData_transacao("10/05/2019");
+		mov.setData_pagamento("10/10/2022");
+		mov.setValor(100f);
+		mov.setStatus(true);
+		
+		 given()
+		    .header("Authorization", "JWT " + TOKEN)
+		    .body(mov)
+		.when()
+		   .post("/transacoes")
+		.then()
+		   .statusCode(201)
+		   ;
+	}
+	@Test
+	public void deveInserirDadossObrigatoriosMovimentacao() {
+		Movimentacao mov = new Movimentacao();
+		mov.setConta_id(1442012);
+	//	mov.setUsuario_id(usuario_id);
+		mov.setDescricao("Descricao da movimentacao");
+		mov.setEnvolvido("Envolvido na mov");
+		mov.setTipo("REC");
+		mov.setData_transacao("10/05/2019");
+		mov.setData_pagamento("10/10/2022");
+		mov.setValor(100f);
+		mov.setStatus(true);
+		
+		 given()
+		    .header("Authorization", "JWT " + TOKEN)
+		    .body(mov)
+		.when()
+		   .post("/transacoes")
+		.then()
+		   .statusCode(201)
+		   ;
+	}
+	@Test
+	public void deveValidarCamposObrigatoriosMovimentacao() {
+		 given()
+		    .header("Authorization", "JWT " + TOKEN)
+		    .body("{}")
+		.when()
+		   .post("/transacoes")
+		.then()
+		   .statusCode(400)
+		   .body("$", hasSize(8))
+		   .body("msg", hasItems(
+				   "Data da Movimentação é obrigatório",
+				   "Data do pagamento é obrigatório",
+				   "Descrição é obrigatório",
+				   "Interessado é obrigatório",
+				   "Valor é obrigatório",
+				   "Valor deve ser um número",
+				   "Conta é obrigatório",
+				   "Situação é obrigatório"				   				   
+				   ))
+		   ;
+	}
+
 }
